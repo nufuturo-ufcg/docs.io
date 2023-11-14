@@ -1,0 +1,672 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This API provides a  solution for transferring files over the network. This API was build using clojure Pedestal API, which is a a set of libraries that we use to build services and applications.\nSome useful links:\n- [NuFileBox repository](https://github.com/nufuturo-ufcg/nufilebox-backend)\n- [Pedestal API](http://pedestal.io/)\n",
+    "version": "5.0.0",
+    "title": "NuFileBox",
+    "contact": {
+      "email": "nufilebox@nutufuro.com"
+    }
+  },
+  "host": "ec2-18-228-222-140.sa-east-1.compute.amazonaws.com",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "home-page",
+      "description": "Im Alive endpoint returning the Hello World! message"
+    },
+    {
+      "name": "about-page",
+      "description": "About Page informing what clojure version is being used"
+    },
+    {
+      "name": "init-multipart",
+      "description": "Returns a set of pre-signed upload urls for each part of the file to be uploaded. User needs to be autenticated by Okta to use this endpoint"
+    },
+    {
+      "name": "complete-multipart",
+      "description": "Completes the multipart upload process started for the file to be uploaded. User needs to be autenticated by Okta to use this endpoint"
+    },
+    {
+      "name": "download",
+      "description": "Returns the pre-signed download url for the file to be downloaded"
+    },
+    {
+      "name": "file-info",
+      "description": "Retrieves file information by its ID such as name, size, number of downloads remaining and number of days to expire"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "home-page"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl <ip address>/"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.get('<ip address>/')\nprint(response.text)"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\n\npublic class Main {\n\n    public static void main(String[] args) throws IOException {\n        URL url = new URL(\"<ip address>:8080/\");\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod(\"GET\");\n\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n        String response = s.hasNext() ? s.next() : \"\";\n        System.out.println(response);\n    }\n}"
+          }
+        ]
+      }
+    },
+    "/about": {
+      "get": {
+        "tags": [
+          "about-page"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl <ip address>:8080/about"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.get('<ip address>/about')\nprint(response.text)"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\n\npublic class Main {\n\n    public static void main(String[] args) throws IOException {\n        URL url = new URL(\"<ip address>:8080/about\");\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod(\"GET\");\n\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n        String response = s.hasNext() ? s.next() : \"\";\n        System.out.println(response);\n    }\n}"
+          }
+        ]
+      }
+    },
+    "/init-multipart": {
+      "post": {
+        "tags": [
+          "init-multipart"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Body of the init-multipart request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/init_multipart_request"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "The JWT token used to authenticate the user",
+            "required": true,
+            "type": "string",
+            "format": "JWT"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Frame-Options": {
+                "type": "string",
+                "description": "Specifies whether or not a browser should be allowed to render a page in a frame, iframe, embed, or object."
+              },
+              "X-Xss-Protection": {
+                "type": "string",
+                "description": "Configures the browser's built-in cross-site scripting (XSS) filter."
+              },
+              "X-Download-Options": {
+                "type": "string",
+                "description": "Specifies whether a browser will be allowed to download a file."
+              },
+              "Strict-Transport-Security": {
+                "type": "string",
+                "description": "Instructs browsers to always make requests to the server over HTTPS."
+              },
+              "X-Permitted-Cross-Domain-Policies": {
+                "type": "string",
+                "description": "Specifies whether cross-domain policy files are allowed."
+              },
+              "X-Content-Type-Options": {
+                "type": "string",
+                "description": "Configures the browser's built-in XSS protection mechanism."
+              },
+              "Content-Security-Policy": {
+                "type": "string",
+                "description": "Specifies the content security policy that the browser should enforce."
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "The MIME type of the response content."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/init_multipart_response_200"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/init_multipart_schema_response_400" },
+                    { "$ref": "#/definitions/init_multipart_bad_request_response_400" }
+                  ]
+
+                }  
+              }
+            }
+
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/invalid_token_response_401"
+                }  
+              }
+            }
+
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST -H 'content-type: multipart/form-data' -F 'filename=<name of your file>' -F 'password=<password>' -F 'ttl=<amount of days for the file to expire>' -F 'max-downloads=<amount of downloads available>' <ip address>:8080/upload"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\nfile = {'filename': (None, 'name of your file'), \n        'password': (None, 'password'), \n        'ttl': (None, 'amount of days for the file to expire'), \n        'max-downloads': (None, 'amount of downloads available')}\n\nresponse = requests.post('http://<ip address>:8080/upload', files=files)"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.IOException\nimport java.io.InputStream\nimport java.net.HttpURLConnection\nimport java.net.URL\nimport java.util.Scanner\n\nclass Main {\n    public static void main(String[] args) throws IOException {\n        URL url = new URL('http://ipaddress:8080/upload');\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod('POST');\n        httpConn.setRequestProperty('content-type', 'multipart/form-data');\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter('\\A');\n        String response = s.hasNext() ? s.next() : '';\n        System.out.println(response);\n    }\n}"
+          }
+        ]
+      }
+    },
+    "/complete-multipart": {
+      "post": {
+        "tags": [
+          "complete-multipart"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Body of the complete-multipart request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/complete_multipart_request"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "The JWT token used to authenticate the user",
+            "required": true,
+            "type": "string",
+            "format": "JWT"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "X-Frame-Options": {
+                "type": "string",
+                "description": "Specifies whether or not a browser should be allowed to render a page in a frame, iframe, embed, or object."
+              },
+              "X-Xss-Protection": {
+                "type": "string",
+                "description": "Configures the browser's built-in cross-site scripting (XSS) filter."
+              },
+              "X-Download-Options": {
+                "type": "string",
+                "description": "Specifies whether a browser will be allowed to download a file."
+              },
+              "Strict-Transport-Security": {
+                "type": "string",
+                "description": "Instructs browsers to always make requests to the server over HTTPS."
+              },
+              "X-Permitted-Cross-Domain-Policies": {
+                "type": "string",
+                "description": "Specifies whether cross-domain policy files are allowed."
+              },
+              "X-Content-Type-Options": {
+                "type": "string",
+                "description": "Configures the browser's built-in XSS protection mechanism."
+              },
+              "Content-Security-Policy": {
+                "type": "string",
+                "description": "Specifies the content security policy that the browser should enforce."
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "The MIME type of the response content."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/complete_multipart_response_200"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/complete_multipart_schema_response_400" },
+                    { "$ref": "#/definitions/complete_multipart_bad_request_response_400" }
+                  ]
+
+                }  
+              }
+            }
+
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/invalid_token_response_401"
+                }  
+              }
+            }
+
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST -H 'content-type: multipart/form-data' -F 'filename=<name of your file>' -F 'password=<password>' -F 'ttl=<amount of days for the file to expire>' -F 'max-downloads=<amount of downloads available>' <ip address>:8080/upload"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\nfile = {'filename': (None, 'name of your file'), \n        'password': (None, 'password'), \n        'ttl': (None, 'amount of days for the file to expire'), \n        'max-downloads': (None, 'amount of downloads available')}\n\nresponse = requests.post('http://<ip address>:8080/upload', files=files)"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.IOException\nimport java.io.InputStream\nimport java.net.HttpURLConnection\nimport java.net.URL\nimport java.util.Scanner\n\nclass Main {\n    public static void main(String[] args) throws IOException {\n        URL url = new URL('http://ipaddress:8080/upload');\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod('POST');\n        httpConn.setRequestProperty('content-type', 'multipart/form-data');\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter('\\A');\n        String response = s.hasNext() ? s.next() : '';\n        System.out.println(response);\n    }\n}"
+          }
+        ]
+      }
+    },
+    "/download/{file-id}": {
+      "get": {
+        "tags": [
+          "download"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file-id",
+            "in": "path",
+            "description": "ID of the uploaded file",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "The password used to encrypt the file",
+            "required": true,
+            "type": "string",
+            "format": "password"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pre-signed url to download the file is generated successfully",
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "Name of the file"
+              },
+              "X-Frame-Options": {
+                "type": "string",
+                "description": "Specifies whether or not a browser should be allowed to render a page in a frame, iframe, embed, or object."
+              },
+              "X-Xss-Protection": {
+                "type": "string",
+                "description": "Configures the browser's built-in cross-site scripting (XSS) filter."
+              },
+              "X-Download-Options": {
+                "type": "string",
+                "description": "Specifies whether a browser will be allowed to download a file."
+              },
+              "Strict-Transport-Security": {
+                "type": "string",
+                "description": "Instructs browsers to always make requests to the server over HTTPS."
+              },
+              "X-Permitted-Cross-Domain-Policies": {
+                "type": "string",
+                "description": "Specifies whether cross-domain policy files are allowed."
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "Indicates whether the response can be exposed when the credentials flag is true."
+              },
+              "Access-Control-Expose-Headers": {
+                "type": "string",
+                "description": "Indicates which headers are safe to expose to the API of a CORS API specification."
+              },
+              "X-Content-Type-Options": {
+                "type": "string",
+                "description": "Configures the browser's built-in XSS protection mechanism."
+              },
+              "Content-Security-Policy": {
+                "type": "string",
+                "description": "Specifies the content security policy that the browser should enforce."
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "The MIME type of the response content."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_download"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "oneOf": [
+                { "$ref": "#/definitions/wrong_password_response_401" },
+                { "$ref": "#/definitions/invalid_token_response_401" }
+              ]
+            }
+          },
+          "404": {
+            "description": "File not found",
+            "schema": {
+              "$ref": "#/definitions/inline_response_404"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -H \"Authorization: <password>\" <ip address>:8080/download/{file-id}"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nfile_id = 'your_file_id'\npassword = 'your_password'\nurl = f'<ip address>/download/{file_id}'\nheaders = {'Authorization': password}\nresponse = requests.get(url, headers=headers)\n\nprint(response.json())"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\n\npublic class Main {\n\n    public static void main(String[] args) throws IOException {\n        URL url = new URL(\"<ip address>:8080/download/{file-id}\");\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod(\"GET\");\n        httpConn.setRequestProperty(\"Authorization\", \"<password>\");\n\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n        String response = s.hasNext() ? s.next() : \"\";\n        System.out.println(response);\n    }\n}"
+          }
+        ]
+      }
+    },
+    "/info/{file-id}": {
+      "get": {
+        "tags": [
+          "file-info"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file-id",
+            "in": "path",
+            "description": "ID of the uploaded file",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File information returned successfully",
+            "headers": {
+              "X-Frame-Options": {
+                "type": "string",
+                "description": "Specifies whether or not a browser should be allowed to render a page in a frame, iframe, embed, or object."
+              },
+              "X-Xss-Protection": {
+                "type": "string",
+                "description": "Configures the browser's built-in cross-site scripting (XSS) filter."
+              },
+              "X-Download-Options": {
+                "type": "string",
+                "description": "Specifies whether a browser will be allowed to download a file."
+              },
+              "Strict-Transport-Security": {
+                "type": "string",
+                "description": "Instructs browsers to always make requests to the server over HTTPS."
+              },
+              "X-Permitted-Cross-Domain-Policies": {
+                "type": "string",
+                "description": "Specifies whether cross-domain policy files are allowed."
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "Indicates whether the response can be exposed when the credentials flag is true."
+              },
+              "Access-Control-Expose-Headers": {
+                "type": "string",
+                "description": "Indicates which headers are safe to expose to the API of a CORS API specification."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/inline_response_200_file_info"
+            }
+          },
+          "404": {
+            "description": "File not found",
+            "schema": {
+              "$ref": "#/definitions/inline_response_404"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl <ip address>:8080/info/{file-id}"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nfile_id = 'your_file_id'\nurl = f'<ip address>/download/{file_id}'\nresponse = requests.get(url)\n\nprint(response.json())"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\n\npublic class Main {\n\n    public static void main(String[] args) throws IOException {\n        URL url = new URL(\"<ip address>:8080/info/{file-id}\");\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod(\"GET\");\n\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n        String response = s.hasNext() ? s.next() : \"\";\n        System.out.println(response);\n    }\n}"
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "init_multipart_request": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string",
+          "description": "Name of the file"
+        },
+        "password": {
+          "type": "string",
+          "description": "Password used to encrypt the file"
+        },
+        "ttl": {
+          "type": "int",
+          "description": "Number of days for the file to expire"
+        },
+        "max-downloads": {
+          "type": "int",
+          "description": "Number of downloads available for the file"
+        },
+        "parts-number": {
+          "type": "int",
+          "description": "Number of parts that the file is going to be send at. Also means the number of pre-signed urls that will be returned"
+        }
+      }
+    },
+    "complete_multipart_request": {
+      "type": "object",
+      "properties": {
+        "file-id": {
+          "type": "string",
+          "description": "UUID of the uploaded file"
+        },
+        "etags": {
+          "type": "list",
+          "description": "A list of etags for all uploaded parts of the file"
+        }
+      }
+    },
+    "init_multipart_response_200": {
+      "type": "object",
+      "properties": {
+        "file-id": {
+          "type": "string",
+          "description": "UUID of the uploaded file"
+        },
+        "pre-signed-urls": {
+          "type": "list",
+          "description": "A list of pre-signed urls for all parts of the file that are going to be uploaded"
+        }
+      }
+    },
+    "complete_multipart_response_200": {
+      "type": "object",
+      "properties": {
+        "file-url": {
+          "type": "string",
+          "description": "UUID of the uploaded file"
+        }
+      }
+    },
+    "inline_response_200_download": {
+      "type": "object",
+      "properties": {
+        "pre-signed-url": {
+          "type": "string",
+          "description": "Pre-signed url"
+        }
+      }
+    },
+    "inline_response_200_file_info": {
+      "type": "object",
+      "properties": {
+        "file-size": {
+          "type": "int",
+          "description": "Size of the file"
+        },
+        "filename": {
+          "type": "string",
+          "description": "Name of the file"
+        },
+        "remaining-downloads": {
+          "type": "int",
+          "description": "Amount of downloads remaining for the file"
+        },
+        "days-to-expire": {
+          "type": "int",
+          "description": "Amount of days left for that file to expire"
+        }
+      }
+    },
+    "init_multipart_bad_request_response_400": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Error creating MultiPart Upload"
+        }
+      }
+    },
+    "complete_multipart_bad_request_response_400": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Error completing MultiPart Upload"
+        }
+      }
+    },
+    "init_multipart_schema_response_400": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Value cannot be coerced to schema: <password, filename, max-downloads, ttl>"
+        }
+      }
+    },
+    "complete_multipart_schema_response_400": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Value cannot be coerced to schema: <file-id, etags>"
+        }
+      }
+    },
+    "inline_response_404": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "File Not Found"
+        }
+      }
+    },
+    "wrong_password_response_401": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Wrong password"
+        }
+      }
+    },
+    "invalid_token_response_401": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Invalid token"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  }
+}
