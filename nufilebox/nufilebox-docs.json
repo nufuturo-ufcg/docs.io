@@ -195,15 +195,15 @@
         "x-codeSamples": [
           {
             "lang": "cURL",
-            "source": "curl -X POST -H 'content-type: multipart/form-data' -F 'filename=<name of your file>' -F 'password=<password>' -F 'ttl=<amount of days for the file to expire>' -F 'max-downloads=<amount of downloads available>' <ip address>:8080/upload"
+            "source": "curl -X POST -H 'Content-Type: application/json' -d '{'filename': 'your_filename', 'password': 'your_password', 'ttl': <1-3>, 'max-downloads': <1-99>, 'parts-number': 5}' <ip address>:8080/init-multipart"
           },
           {
             "lang": "Python",
-            "source": "import requests\nfile = {'filename': (None, 'name of your file'), \n        'password': (None, 'password'), \n        'ttl': (None, 'amount of days for the file to expire'), \n        'max-downloads': (None, 'amount of downloads available')}\n\nresponse = requests.post('http://<ip address>:8080/upload', files=files)"
+            "source": "import requests\nheaders = {'Content-Type': 'application/json'}\njson_data = {'filename': 'your_filename', 'password': 'your_password', 'ttl': 7, 'max-downloads': 10, 'parts-number': 5}\nresponse = requests.post('http://localhost/init-multipart', headers=headers, json=json_data)"
           },
           {
             "lang": "Java",
-            "source": "import java.io.IOException\nimport java.io.InputStream\nimport java.net.HttpURLConnection\nimport java.net.URL\nimport java.util.Scanner\n\nclass Main {\n    public static void main(String[] args) throws IOException {\n        URL url = new URL('http://ipaddress:8080/upload');\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod('POST');\n        httpConn.setRequestProperty('content-type', 'multipart/form-data');\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter('\\A');\n        String response = s.hasNext() ? s.next() : '';\n        System.out.println(response);\n    }\n}"
+            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.io.OutputStreamWriter;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\nclass Main {\npublic static void main(String[] args) throws IOException {\n    URL url = new URL(\"http://localhost/init-multipart\");\n    HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n    httpConn.setRequestMethod(\"POST\");\n    httpConn.setRequestProperty(\"Content-Type\", \"application/json\");\n    httpConn.setDoOutput(true);\n    OutputStreamWriter writer = new OutputStreamWriter(httpConn.getOutputStream());\n    writer.write(\"{\\n    \\\"filename\\\": \\\"your_filename\\\",\\n    \\\"password\\\": \\\"your_password\\\",\\n    \\\"ttl\\\": 7,\\n    \\\"max-downloads\\\": 10,\\n    \\\"parts-number\\\": 5\\n  }\");\n    writer.flush();\n    writer.close();\n    httpConn.getOutputStream().close();\n    InputStream responseStream = httpConn.getResponseCode() / 100 == 2 ? httpConn.getInputStream() : httpConn.getErrorStream();\n    Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n    String response = s.hasNext() ? s.next() : \"\";\n    System.out.println(response);\n}}"
           }
         ]
       }
