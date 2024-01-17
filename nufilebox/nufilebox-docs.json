@@ -2,23 +2,15 @@
   "swagger": "2.0",
   "info": {
     "description": "This API provides a  solution for transferring files over the network. This API was build using clojure Pedestal API, which is a a set of libraries that we use to build services and applications.\nSome useful links:\n- [NuFileBox repository](https://github.com/nufuturo-ufcg/nufilebox-backend)\n- [Pedestal API](http://pedestal.io/)\n",
-    "version": "5.0.0",
+    "version": "5.2.0",
     "title": "NuFileBox",
     "contact": {
       "email": "nufilebox@nutufuro.com"
     }
   },
-  "host": "ec2-18-228-222-140.sa-east-1.compute.amazonaws.com",
-  "basePath": "/",
+  "host": "file-transfer-ufcg.com",
+  "basePath": "/api",
   "tags": [
-    {
-      "name": "home-page",
-      "description": "Im Alive endpoint returning the Hello World! message"
-    },
-    {
-      "name": "about-page",
-      "description": "About Page informing what clojure version is being used"
-    },
     {
       "name": "init-multipart",
       "description": "Returns a set of pre-signed upload urls for each part of the file to be uploaded. User needs to be autenticated by Okta to use this endpoint"
@@ -34,66 +26,17 @@
     {
       "name": "file-info",
       "description": "Retrieves file information by its ID such as name, size, number of downloads remaining and number of days to expire"
+    },
+    {
+      "name": "corrupted-file",
+      "description": "Set a file to be corrupted if the checksums don't match"
     }
+
   ],
   "schemes": [
     "http"
   ],
   "paths": {
-    "/": {
-      "get": {
-        "tags": [
-          "home-page"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        },
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "source": "curl <ip address>/"
-          },
-          {
-            "lang": "Python",
-            "source": "import requests\n\nresponse = requests.get('<ip address>/')\nprint(response.text)"
-          },
-          {
-            "lang": "Java",
-            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\n\npublic class Main {\n\n    public static void main(String[] args) throws IOException {\n        URL url = new URL(\"<ip address>:8080/\");\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod(\"GET\");\n\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n        String response = s.hasNext() ? s.next() : \"\";\n        System.out.println(response);\n    }\n}"
-          }
-        ]
-      }
-    },
-    "/about": {
-      "get": {
-        "tags": [
-          "about-page"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        },
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "source": "curl <ip address>:8080/about"
-          },
-          {
-            "lang": "Python",
-            "source": "import requests\n\nresponse = requests.get('<ip address>/about')\nprint(response.text)"
-          },
-          {
-            "lang": "Java",
-            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\n\npublic class Main {\n\n    public static void main(String[] args) throws IOException {\n        URL url = new URL(\"<ip address>:8080/about\");\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod(\"GET\");\n\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n        String response = s.hasNext() ? s.next() : \"\";\n        System.out.println(response);\n    }\n}"
-          }
-        ]
-      }
-    },
     "/init-multipart": {
       "post": {
         "tags": [
@@ -508,6 +451,86 @@
           }
         ]
       }
+    },
+    "/corrupted-file": {
+      "get": {
+        "tags": [
+          "corrupted-file"
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "file-id",
+            "in": "body",
+            "description": "ID of the uploaded file",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "corrupted-status",
+            "in": "body",
+            "description": "Status of the file (true)",
+            "required": true,
+            "type": "boolean"
+          }
+
+        ],
+        "responses": {
+          "200": {
+            "description": "Corrupted status updated successfully",
+            "headers": {
+              "X-Frame-Options": {
+                "type": "string",
+                "description": "Specifies whether or not a browser should be allowed to render a page in a frame, iframe, embed, or object."
+              },
+              "X-Xss-Protection": {
+                "type": "string",
+                "description": "Configures the browser's built-in cross-site scripting (XSS) filter."
+              },
+              "X-Download-Options": {
+                "type": "string",
+                "description": "Specifies whether a browser will be allowed to download a file."
+              },
+              "Strict-Transport-Security": {
+                "type": "string",
+                "description": "Instructs browsers to always make requests to the server over HTTPS."
+              },
+              "X-Permitted-Cross-Domain-Policies": {
+                "type": "string",
+                "description": "Specifies whether cross-domain policy files are allowed."
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "Indicates whether the response can be exposed when the credentials flag is true."
+              },
+              "Access-Control-Expose-Headers": {
+                "type": "string",
+                "description": "Indicates which headers are safe to expose to the API of a CORS API specification."
+              }
+            }
+          },
+          "404": {
+            "description": "File not found",
+            "schema": {
+              "$ref": "#/definitions/inline_response_404"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl <ip address>:8080/info/{file-id}"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nfile_id = 'your_file_id'\nurl = f'<ip address>/download/{file_id}'\nresponse = requests.get(url)\n\nprint(response.json())"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.IOException;\nimport java.io.InputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.util.Scanner;\n\npublic class Main {\n\n    public static void main(String[] args) throws IOException {\n        URL url = new URL(\"<ip address>:8080/info/{file-id}\");\n        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();\n        httpConn.setRequestMethod(\"GET\");\n\n        InputStream responseStream = httpConn.getResponseCode() / 100 == 2\n                ? httpConn.getInputStream()\n                : httpConn.getErrorStream();\n        Scanner s = new Scanner(responseStream).useDelimiter(\"\\\\A\");\n        String response = s.hasNext() ? s.next() : \"\";\n        System.out.println(response);\n    }\n}"
+          }
+        ]
+      }
     }
   },
   "definitions": {
@@ -546,6 +569,10 @@
         "etags": {
           "type": "list",
           "description": "A list of etags for all uploaded parts of the file"
+        },
+        "checksum-parts": {
+          "type": "list",
+          "description": "A list of the checksums for all the chunks of the file"
         }
       }
     },
@@ -574,9 +601,13 @@
     "inline_response_200_download": {
       "type": "object",
       "properties": {
-        "pre-signed-url": {
-          "type": "string",
-          "description": "Pre-signed url"
+        "pre-signed-urls": {
+          "type": "list",
+          "description": "List of pre-signed urls for each part"
+        },
+        "checksum-parts": {
+          "type": "list",
+          "description": "List of checksums for each chunk of the file"
         }
       }
     },
